@@ -1,0 +1,56 @@
+name: ParaBank Playwright Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://parabank.parasoft.com/parabank/index.htm
+      PARABANK_USERNAME: ${{ secrets.PARABANK_USERNAME }}
+      PARABANK_PASSWORD: ${{ secrets.PARABANK_PASSWORD }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check project
+        run: npm run typecheck
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke suite
+        run: npm run test:smoke -- --project=chromium
+
+      - name: Run Day 2 regression suite
+        run: npm run test:regression -- --project=chromium
+
+      - name: Run session suite
+        run: npm run test:session -- --project=chromium
+
+      - name: Generate Allure report
+        if: always()
+        run: npm run allure:generate
+
+      - name: Upload Playwright and Allure reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            playwright-report/
+            allure-report/
+            test-results/
+          if-no-files-found: warn

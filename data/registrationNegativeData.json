@@ -1,0 +1,12 @@
+[
+  { "id": "REG-001", "field": "firstName", "title": "First Name" },
+  { "id": "REG-002", "field": "lastName", "title": "Last Name" },
+  { "id": "REG-003", "field": "address", "title": "Address" },
+  { "id": "REG-004", "field": "city", "title": "City" },
+  { "id": "REG-005", "field": "state", "title": "State" },
+  { "id": "REG-006", "field": "zipCode", "title": "Zip Code" },
+  { "id": "REG-007", "field": "ssn", "title": "SSN" },
+  { "id": "REG-008", "field": "username", "title": "Username" },
+  { "id": "REG-009", "field": "password", "title": "Password" },
+  { "id": "REG-010", "field": "repeatedPassword", "title": "Confirm Password" }
+]

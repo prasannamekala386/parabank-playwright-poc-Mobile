@@ -1,0 +1,5 @@
+{
+  "sqlInjection": "' OR '1'='1",
+  "xss": "<script>alert('xss')</script>",
+  "specialCharacters": "!@#$%^&*()_+"
+}
