@@ -18,6 +18,7 @@ export class AccountsOverviewPage {
 		for (let attempt = 0; attempt < 3; attempt += 1) {
 			await this.page.goto('overview.htm');
 			if (!(await this.page.getByRole('heading', { name: 'Error!' }).isVisible({ timeout: 1000 }).catch(() => false))) {
+				await expect(this.accountNumbers.first()).toBeVisible({ timeout: 15000 });
 				return;
 			}
 		}
@@ -73,5 +74,13 @@ export class AccountsOverviewPage {
 	async totalBalance(): Promise<number> {
 		const summaries = await this.accountSummaries();
 		return Number(summaries.reduce((total, account) => total + account.balance, 0).toFixed(2));
+	}
+
+	async waitForBalance(accountNumber: string, expectedBalance: number): Promise<void> {
+		await expect.poll(async () => {
+			await this.open();
+			const account = (await this.accountSummaries()).find((summary) => summary.accountNumber === accountNumber);
+			return account?.balance ?? Number.NaN;
+		}, { timeout: 15000, intervals: [1000, 2000] }).toBeCloseTo(expectedBalance, 2);
 	}
 }

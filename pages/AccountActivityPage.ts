@@ -18,7 +18,9 @@ export class AccountActivityPage {
 
 	async open(accountNumber: string): Promise<void> {
 		await this.page.getByRole('link', { name: 'Accounts Overview' }).click();
-		await this.page.locator('#accountTable tbody tr').filter({ hasText: accountNumber }).getByRole('link').click();
+		const accountLink = this.page.locator(`#accountTable a[href$="id=${accountNumber}"]`);
+		await expect(accountLink).toBeVisible({ timeout: 15000 });
+		await accountLink.click();
 	}
 
 	async expectDisplayed(): Promise<void> {
@@ -47,5 +49,26 @@ export class AccountActivityPage {
 
 	async expectContainsTransferEntry(description: RegExp): Promise<void> {
 		await expect(this.page.locator('#transactionTable tbody tr').filter({ hasText: description }).first()).toBeVisible();
+	}
+
+	async expectContainsBillPayment(amount: string): Promise<void> {
+		await expect.poll(async () => {
+			await this.refreshResults();
+			return await this.page.locator('#transactionTable tbody tr').filter({ hasText: new RegExp(`Bill Pay|${amount.replace('.', '\\.')}`, 'i') }).count();
+		}, { timeout: 15000, intervals: [1000, 2000] }).toBeGreaterThan(0);
+	}
+
+	async expectBillPaymentCount(expectedCount: number): Promise<void> {
+		await expect.poll(async () => {
+			await this.refreshResults();
+			return (await this.rows()).filter((row) => /bill pay/i.test(row.description)).length;
+		}, { timeout: 20000, intervals: [1000, 2000] }).toBe(expectedCount);
+	}
+
+	private async refreshResults(): Promise<void> {
+		await this.page.reload();
+		await expect(this.transactionTable).toBeVisible();
+		await this.page.getByRole('button', { name: 'Go' }).click();
+		await this.page.waitForLoadState('networkidle');
 	}
 }

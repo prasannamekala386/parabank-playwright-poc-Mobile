@@ -1,6 +1,7 @@
 import { test as base } from '@playwright/test';
 import { AccountActivityPage } from '../pages/AccountActivityPage';
 import { AccountsOverviewPage } from '../pages/AccountsOverviewPage';
+import { BillPayPage } from '../pages/BillPayPage';
 import { LoginPage } from '../pages/LoginPage';
 import { OpenAccountPage } from '../pages/OpenAccountPage';
 import { RegistrationPage } from '../pages/RegistrationPage';
@@ -19,6 +20,7 @@ type Fixtures = {
 	openAccountPage: OpenAccountPage;
 	transferFundsPage: TransferFundsPage;
 	accountActivityPage: AccountActivityPage;
+	billPayPage: BillPayPage;
 	registeredUser: TestCredentials;
 	apiHelper: ApiHelper;
 	accountUser: TestCredentials;
@@ -48,6 +50,7 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
 	openAccountPage: async ({ page }, use) => use(new OpenAccountPage(page)),
 	transferFundsPage: async ({ page }, use) => use(new TransferFundsPage(page)),
 	accountActivityPage: async ({ page }, use) => use(new AccountActivityPage(page)),
+	billPayPage: async ({ page }, use) => use(new BillPayPage(page)),
 	apiHelper: async ({ request }, use) => use(new ApiHelper(request)),
 	registeredUser: async ({ workerUser }, use) => use(workerUser),
 	accountUser: async ({ page }, use) => {
