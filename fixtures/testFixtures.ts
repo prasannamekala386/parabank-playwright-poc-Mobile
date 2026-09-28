@@ -2,12 +2,14 @@ import { test as base } from '@playwright/test';
 import { AccountActivityPage } from '../pages/AccountActivityPage';
 import { AccountsOverviewPage } from '../pages/AccountsOverviewPage';
 import { BillPayPage } from '../pages/BillPayPage';
+import { FindTransactionsPage } from '../pages/FindTransactionsPage';
 import { LoginPage } from '../pages/LoginPage';
 import { OpenAccountPage } from '../pages/OpenAccountPage';
 import { RegistrationPage } from '../pages/RegistrationPage';
 import { TransferFundsPage } from '../pages/TransferFundsPage';
 import { ApiHelper } from '../utils/apiHelper';
 import { generateRegistrationUser } from '../utils/testDataGenerator';
+import { TransactionSeedingUtility } from '../utils/transactionSeedingUtility';
 export type TestCredentials = {
 	username: string;
 	password: string;
@@ -21,6 +23,8 @@ type Fixtures = {
 	transferFundsPage: TransferFundsPage;
 	accountActivityPage: AccountActivityPage;
 	billPayPage: BillPayPage;
+	findTransactionsPage: FindTransactionsPage;
+	transactionSeedingUtility: TransactionSeedingUtility;
 	registeredUser: TestCredentials;
 	apiHelper: ApiHelper;
 	accountUser: TestCredentials;
@@ -51,7 +55,9 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
 	transferFundsPage: async ({ page }, use) => use(new TransferFundsPage(page)),
 	accountActivityPage: async ({ page }, use) => use(new AccountActivityPage(page)),
 	billPayPage: async ({ page }, use) => use(new BillPayPage(page)),
-	apiHelper: async ({ request }, use) => use(new ApiHelper(request)),
+	findTransactionsPage: async ({ page }, use) => use(new FindTransactionsPage(page)),
+	transactionSeedingUtility: async ({ apiHelper }, use) => use(new TransactionSeedingUtility(apiHelper)),
+	apiHelper: async ({ page }, use) => use(new ApiHelper(page)),
 	registeredUser: async ({ workerUser }, use) => use(workerUser),
 	accountUser: async ({ page }, use) => {
 		const user = generateRegistrationUser();

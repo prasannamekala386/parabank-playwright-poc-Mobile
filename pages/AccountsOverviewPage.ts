@@ -53,7 +53,9 @@ export class AccountsOverviewPage {
 		const summaries: AccountSummary[] = [];
 		for (let index = 0; index < await rows.count(); index += 1) {
 			const cells = rows.nth(index).locator('td');
-			const accountNumber = (await cells.nth(0).textContent())?.trim() ?? '';
+			const accountLink = cells.nth(0).locator('a');
+			if (await accountLink.count() === 0) continue;
+			const accountNumber = (await accountLink.textContent())?.trim() ?? '';
 			const balanceText = (await cells.nth(1).textContent())?.trim() ?? '';
 			const balance = Number.parseFloat(balanceText.replace(/[$,]/g, ''));
 			if (/^\d+$/.test(accountNumber) && Number.isFinite(balance)) {
