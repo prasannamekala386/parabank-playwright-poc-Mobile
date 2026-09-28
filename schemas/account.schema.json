@@ -1,0 +1,1 @@
+{"type":"object","required":["id","customerId"],"properties":{"id":{"type":"number"},"customerId":{"type":"number"},"type":{"type":"string"},"balance":{"type":"number"}}}

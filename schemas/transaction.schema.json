@@ -1,0 +1,1 @@
+{"type":"array","items":{"type":"object","required":["id","accountId","amount"],"properties":{"id":{"type":"number"},"accountId":{"type":"number"},"type":{"type":"string"},"amount":{"type":"number"},"description":{"type":"string"},"balance":{"type":"number"}}}}
