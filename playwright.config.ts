@@ -56,12 +56,54 @@ export default defineConfig({
   },
 
   projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
+  {
+    name: 'chromium',
+    use: {
+      ...devices['Desktop Chrome'],
     },
+  },
+
+  // Android Devices
+  {
+    name: 'Pixel 7',
+    use: {
+      ...devices['Pixel 7'],
+      viewport: { width: 412, height: 915 },
+    },
+  },
+
+  {
+    name: 'Samsung Galaxy S23',
+    use: {
+      ...devices['Galaxy S23'],
+      viewport: { width: 393, height: 852 },
+    },
+  },
+
+  // iOS Devices
+  {
+    name: 'iPhone 14',
+    use: {
+      ...devices['iPhone 14'],
+      viewport: { width: 390, height: 844 },
+    },
+  },
+
+  {
+    name: 'iPhone 15 Pro',
+    use: {
+      ...devices['iPhone 15 Pro'],
+      viewport: { width: 393, height: 852 },
+    },
+  },
+
+  {
+    name: 'iPad Pro 11',
+    use: {
+      ...devices['iPad Pro 11'],
+      viewport: { width: 834, height: 1194 },
+    },
+  },
 
     // Future expansion
     // {
