@@ -1,0 +1,32 @@
+[
+  {
+    "loanAmount": "50.00",
+    "downPayment": "10.00",
+    "availableBalance": 25,
+    "expectedOutcome": "approved"
+  },
+  {
+    "loanAmount": "75.00",
+    "downPayment": "25.00",
+    "availableBalance": 25,
+    "expectedOutcome": "approved"
+  },
+  {
+    "loanAmount": "100.00",
+    "downPayment": "30.00",
+    "availableBalance": 25,
+    "expectedOutcome": "approved"
+  },
+  {
+    "loanAmount": "50.00",
+    "downPayment": "50.00",
+    "availableBalance": 25,
+    "expectedOutcome": "approved"
+  },
+  {
+    "loanAmount": "10.00",
+    "downPayment": "10.00",
+    "availableBalance": 10,
+    "expectedOutcome": "approved"
+  }
+]

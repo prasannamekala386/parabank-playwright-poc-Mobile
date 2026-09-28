@@ -17,8 +17,14 @@ export class AccountsOverviewPage {
 	async open(): Promise<void> {
 		for (let attempt = 0; attempt < 3; attempt += 1) {
 			await this.page.goto('overview.htm');
-			if (!(await this.page.getByRole('heading', { name: 'Error!' }).isVisible({ timeout: 1000 }).catch(() => false))) {
-				await expect(this.accountNumbers.first()).toBeVisible({ timeout: 15000 });
+			const errorHeading = this.page.getByRole('heading', { name: 'Error!' });
+			await expect.poll(async () => {
+				if (await errorHeading.isVisible().catch(() => false)) return 'error';
+				if (await this.accountNumbers.count() > 0) return 'accounts';
+				return 'loading';
+			}, { timeout: 15000, intervals: [250, 500, 1000] }).toMatch(/accounts|error/);
+			if (!(await errorHeading.isVisible().catch(() => false))) {
+				await expect(this.accountNumbers.first()).toBeVisible({ timeout: 5000 });
 				return;
 			}
 		}

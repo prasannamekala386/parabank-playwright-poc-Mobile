@@ -4,6 +4,7 @@ import { AccountsOverviewPage } from '../pages/AccountsOverviewPage';
 import { BillPayPage } from '../pages/BillPayPage';
 import { FindTransactionsPage } from '../pages/FindTransactionsPage';
 import { LoginPage } from '../pages/LoginPage';
+import { LoanPage } from '../pages/LoanPage';
 import { OpenAccountPage } from '../pages/OpenAccountPage';
 import { RegistrationPage } from '../pages/RegistrationPage';
 import { TransferFundsPage } from '../pages/TransferFundsPage';
@@ -24,6 +25,7 @@ type Fixtures = {
 	accountActivityPage: AccountActivityPage;
 	billPayPage: BillPayPage;
 	findTransactionsPage: FindTransactionsPage;
+	loanPage: LoanPage;
 	transactionSeedingUtility: TransactionSeedingUtility;
 	registeredUser: TestCredentials;
 	apiHelper: ApiHelper;
@@ -56,6 +58,7 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
 	accountActivityPage: async ({ page }, use) => use(new AccountActivityPage(page)),
 	billPayPage: async ({ page }, use) => use(new BillPayPage(page)),
 	findTransactionsPage: async ({ page }, use) => use(new FindTransactionsPage(page)),
+	loanPage: async ({ page }, use) => use(new LoanPage(page)),
 	transactionSeedingUtility: async ({ apiHelper }, use) => use(new TransactionSeedingUtility(apiHelper)),
 	apiHelper: async ({ page }, use) => use(new ApiHelper(page)),
 	registeredUser: async ({ workerUser }, use) => use(workerUser),

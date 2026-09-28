@@ -14,10 +14,16 @@ export class TransferFundsPage {
 	async open(): Promise<void> {
 		for (let attempt = 0; attempt < 3; attempt += 1) {
 			await this.page.goto('transfer.htm');
-			if (await this.page.getByRole('heading', { name: 'Error!' }).isVisible({ timeout: 1000 }).catch(() => false)) {
+			const errorHeading = this.page.getByRole('heading', { name: 'Error!' });
+			await expect.poll(async () => {
+				if (await errorHeading.isVisible().catch(() => false)) return 'error';
+				if (await this.sourceAccount.locator('option').count() > 0) return 'accounts';
+				return 'loading';
+			}, { timeout: 15000, intervals: [250, 500, 1000] }).toMatch(/accounts|error/);
+			if (await errorHeading.isVisible().catch(() => false)) {
 				continue;
 			}
-			await expect.poll(async () => this.sourceAccount.locator('option').count(), { timeout: 15000 }).toBeGreaterThanOrEqual(2);
+			await expect.poll(async () => this.sourceAccount.locator('option').count(), { timeout: 5000 }).toBeGreaterThanOrEqual(2);
 			await expect.poll(async () => this.destinationAccount.locator('option').count(), { timeout: 15000 }).toBeGreaterThanOrEqual(2);
 			return;
 		}

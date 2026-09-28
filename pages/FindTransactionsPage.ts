@@ -45,7 +45,7 @@ export class FindTransactionsPage {
 	}
 
 	async searchByDateRange(fromDate: string, toDate: string): Promise<void> {
-		await this.runSearch(this.fromDate, fromDate);
+		await this.runSearch(this.fromDate, fromDate, 'findByDateRange');
 		await this.toDate.fill(toDate);
 		await this.page.locator('#findByDateRange').click();
 	}

@@ -22,6 +22,9 @@ export class LoginPage {
 		logger.info(`Logging in as ${username || '<blank>'}`);
 		for (let attempt = 0; attempt < 3; attempt += 1) {
 			await this.open();
+			if (!(await this.username.isVisible({ timeout: 5000 }).catch(() => false))) {
+				continue;
+			}
 			await this.username.fill(username);
 			await this.password.fill(password);
 			await this.page.getByRole('button', { name: 'Log In' }).click();
@@ -44,6 +47,10 @@ export class LoginPage {
 	async expectAuthenticated(): Promise<void> {
 		await expect(this.page.getByRole('heading', { name: 'Account Services' })).toBeVisible();
 		await expect(this.page.getByRole('link', { name: 'Log Out' })).toBeVisible();
+	}
+
+	async isAuthenticated(): Promise<boolean> {
+		return this.page.getByRole('heading', { name: 'Account Services' }).isVisible({ timeout: 1000 }).catch(() => false);
 	}
 
 	async expectSessionNotRestored(): Promise<void> {

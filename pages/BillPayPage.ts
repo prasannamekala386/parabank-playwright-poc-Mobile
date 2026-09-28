@@ -10,6 +10,7 @@ export type BillPayment = {
 	accountNumber: string;
 	verifyAccountNumber: string;
 	amount: string;
+	fromAccountNumber?: string;
 };
 
 export class BillPayPage {
@@ -69,7 +70,11 @@ export class BillPayPage {
 				await field.fill(value);
 			}
 		}
-		await this.fromAccount.selectOption({ index: 0 });
+		if (payment.fromAccountNumber) {
+			await this.fromAccount.selectOption({ label: payment.fromAccountNumber });
+		} else {
+			await this.fromAccount.selectOption({ index: 0 });
+		}
 	}
 
 	async submit(): Promise<void> {
