@@ -6,7 +6,6 @@ export async function prepareTransactions({ loginPage, accountsOverviewPage, ope
 	const accounts = await ensureTransferAccounts({ loginPage, accountsOverviewPage, openAccountPage, accountUser });
 	const source = accounts[0];
 	const destination = accounts[1];
-	await apiHelper.login(accountUser.username, accountUser.password);
 	const sourceAccount = await apiHelper.getAccount(source.accountNumber);
 	const destinationAccount = await apiHelper.getAccount(destination.accountNumber);
 	if (!Number.isInteger(sourceAccount.accountId) || sourceAccount.accountId <= 0 || !Number.isInteger(destinationAccount.accountId) || destinationAccount.accountId <= 0) {
@@ -17,7 +16,9 @@ export async function prepareTransactions({ loginPage, accountsOverviewPage, ope
 }
 
 export function toUiDate(date: string): string {
-	const parsed = new Date(date);
+	const trimmedDate = date.trim();
+	const timestamp = /^\d+$/.test(trimmedDate) ? Number(trimmedDate) : Number.NaN;
+	const parsed = new Date(Number.isFinite(timestamp) ? timestamp : date);
 	if (Number.isNaN(parsed.getTime())) return date;
 	return `${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}-${parsed.getFullYear()}`;
 }

@@ -99,15 +99,16 @@ export class ApiHelper {
 
 	private async withRetry<T>(operation: () => Promise<T>): Promise<T> {
 		let lastError: unknown;
-		for (let attempt = 0; attempt < 3; attempt += 1) {
+		const maxAttempts = 6;
+		for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
 			try {
 				return await operation();
 			} catch (error) {
 				lastError = error;
-				if (!this.isTransientError(error) || attempt === 2) {
+				if (!this.isTransientError(error) || attempt === maxAttempts - 1) {
 					throw error;
 				}
-				await new Promise((resolve) => setTimeout(resolve, 500 * (2 ** attempt)));
+				await new Promise((resolve) => setTimeout(resolve, this.retryDelayMs(error, attempt)));
 			}
 		}
 		throw lastError;
@@ -115,6 +116,15 @@ export class ApiHelper {
 
 	private isTransientError(error: unknown): boolean {
 		const message = error instanceof Error ? error.message : String(error);
-		return /ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|socket hang up|network timeout|failed to fetch|HTTP 5\d\d/i.test(message);
+		return /ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|socket hang up|network timeout|failed to fetch|HTTP (?:429|5\d\d)/i.test(message);
+	}
+
+	private retryDelayMs(error: unknown, attempt: number): number {
+		const message = error instanceof Error ? error.message : String(error);
+		if (/HTTP 429/i.test(message)) {
+			const retryAfterSeconds = Number(/"retry_after"\s*:\s*(\d+(?:\.\d+)?)/i.exec(message)?.[1] ?? 30);
+			return Math.min(retryAfterSeconds * 1000 * (2 ** attempt), 120_000);
+		}
+		return 500 * (2 ** attempt);
 	}
 }

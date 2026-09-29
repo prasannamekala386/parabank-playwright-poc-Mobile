@@ -1,10 +1,10 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 export type ActivityRow = {
+	id: string;
 	date: string;
 	description: string;
 	amount: number;
-	balance: number;
 };
 
 export class AccountActivityPage {
@@ -34,14 +34,17 @@ export class AccountActivityPage {
 		const entries: ActivityRow[] = [];
 		for (let index = 0; index < await rows.count(); index += 1) {
 			const cells = rows.nth(index).locator('td');
+			if (await cells.count() < 4) continue;
+			const link = cells.nth(1).locator('a');
+			const href = await link.getAttribute('href');
+			const id = href ? new URL(href, this.page.url()).searchParams.get('id') : null;
 			const date = (await cells.nth(0).textContent())?.trim() ?? '';
-			const description = (await cells.nth(1).textContent())?.trim() ?? '';
-			const amountText = (await cells.nth(2).textContent())?.trim() ?? '';
-			const balanceText = (await cells.nth(3).textContent())?.trim() ?? '';
-			const amount = Number.parseFloat(amountText.replace(/[$,]/g, ''));
-			const balance = Number.parseFloat(balanceText.replace(/[$,]/g, ''));
-			if (date && description) {
-				entries.push({ date, description, amount, balance });
+			const description = (await link.textContent())?.trim() ?? '';
+			const debit = (await cells.nth(2).textContent())?.trim() ?? '';
+			const credit = (await cells.nth(3).textContent())?.trim() ?? '';
+			const amount = Number.parseFloat((debit || credit).replace(/[$,]/g, ''));
+			if (id && date && description && Number.isFinite(amount)) {
+				entries.push({ id, date, description, amount });
 			}
 		}
 		return entries;

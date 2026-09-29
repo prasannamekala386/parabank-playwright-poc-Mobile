@@ -5,7 +5,6 @@ export type SearchTransaction = {
 	date: string;
 	description: string;
 	amount: number;
-	balance: number;
 };
 
 export class FindTransactionsPage {
@@ -45,9 +44,10 @@ export class FindTransactionsPage {
 	}
 
 	async searchByDateRange(fromDate: string, toDate: string): Promise<void> {
-		await this.runSearch(this.fromDate, fromDate, 'findByDateRange');
+		await this.fromDate.fill(fromDate);
 		await this.toDate.fill(toDate);
 		await this.page.locator('#findByDateRange').click();
+		await this.page.waitForLoadState('networkidle');
 	}
 
 	async searchByAmount(amount: string): Promise<void> {
@@ -59,14 +59,21 @@ export class FindTransactionsPage {
 		const entries: SearchTransaction[] = [];
 		for (let index = 0; index < await rows.count(); index += 1) {
 			const cells = rows.nth(index).locator('td');
-			const values = await cells.allTextContents();
-			if (values.length < 4 || !/^\d+$/.test(values[0].trim())) continue;
+			if (await cells.count() < 4) continue;
+			const link = cells.nth(1).locator('a');
+			const href = await link.getAttribute('href');
+			const id = href ? new URL(href, this.page.url()).searchParams.get('id') : null;
+			const date = (await cells.nth(0).textContent())?.trim() ?? '';
+			const description = (await link.textContent())?.trim() ?? '';
+			const debit = (await cells.nth(2).textContent())?.trim() ?? '';
+			const credit = (await cells.nth(3).textContent())?.trim() ?? '';
+			const amount = Number.parseFloat((debit || credit).replace(/[$,]/g, ''));
+			if (!id || !date || !description || !Number.isFinite(amount)) continue;
 			entries.push({
-				id: values[0].trim(),
-				date: values[1].trim(),
-				description: values[2].trim(),
-				amount: Number.parseFloat(values[3].replace(/[$,]/g, '')),
-				balance: Number.parseFloat((values[4] ?? '').replace(/[$,]/g, '')),
+				id,
+				date,
+				description,
+				amount,
 			});
 		}
 		return entries;
@@ -78,7 +85,13 @@ export class FindTransactionsPage {
 	}
 
 	async expectNoResults(): Promise<void> {
-		await expect(this.page.locator('body')).toContainText(/No transactions found|No results|not found/i);
+		await expect(this.page.getByRole('heading', { name: 'Error!' })).toHaveCount(0);
+		await expect(this.resultsTable).toBeVisible();
+		await expect(this.resultsTable.locator('tbody tr')).toHaveCount(0);
+	}
+
+	async expectDateValidationMessage(): Promise<void> {
+		await expect(this.page.getByText('Invalid date format', { exact: true })).toBeVisible();
 	}
 
 	private async runSearch(field: Locator, value: string, buttonId: string): Promise<void> {

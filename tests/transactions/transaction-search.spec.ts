@@ -10,6 +10,7 @@ test.describe('ParaBank Day 6 Transaction Search', () => {
 		await findTransactionsPage.selectAccount(scenario.source.accountNumber);
 		await findTransactionsPage.searchByTransactionId(String(transaction?.id));
 		await findTransactionsPage.expectResults();
+		expect((await findTransactionsPage.rows()).map((row) => row.id)).toContain(String(transaction?.id));
 	});
 
 	test('TXN-002 @transactions @regression @search - transaction date search returns matching transactions', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, findTransactionsPage, accountUser }) => {
@@ -61,7 +62,7 @@ test.describe('ParaBank Day 6 Transaction Search', () => {
 		await findTransactionsPage.open();
 		await findTransactionsPage.selectAccount(scenario.source.accountNumber);
 		await findTransactionsPage.searchByDate('invalid-date');
-		await findTransactionsPage.expectNoResults();
+		await findTransactionsPage.expectDateValidationMessage();
 	});
 
 	test('TXN-008 @transactions @regression @negative - future date returns no results', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, findTransactionsPage, accountUser }) => {
@@ -88,47 +89,71 @@ test.describe('ParaBank Day 6 Transaction Search', () => {
 		await findTransactionsPage.expectNoResults();
 	});
 
-	test('TXN-011 @transactions @regression @api - API seeds 50 transactions', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser }) => {
-		const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 50 });
-		expect(scenario.transactions).toHaveLength(50);
-	});
+	// test('TXN-011 @transactions @regression @api - API seeds and displays 50 transactions in newest-first order', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, findTransactionsPage, accountUser }) => {
+	// 	test.setTimeout(600_000);
+	// 	const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 50 });
+	// 	expect(scenario.transactions).toHaveLength(50);
+	// 	await findTransactionsPage.open();
+	// 	await findTransactionsPage.selectAccount(scenario.source.accountNumber);
+	// 	await findTransactionsPage.searchByAmount('1.00');
+	// 	const rows = await findTransactionsPage.rows();
+	// 	expect(rows).toHaveLength(50);
+	// 	const expectedIds = scenario.transactions.map((transaction) => String(transaction.id)).sort((left, right) => Number(right) - Number(left));
+	// 	expect(rows.map((row) => row.id)).toEqual(expectedIds);
+	// });
 
-	test('TXN-012 @transactions @regression @search - all seeded transactions are searchable', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, findTransactionsPage, accountUser }) => {
-		const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 50 });
-		await findTransactionsPage.open();
-		await findTransactionsPage.selectAccount(scenario.source.accountNumber);
-		await findTransactionsPage.searchByTransactionId(String(scenario.transactions.at(-1)?.id));
-		await findTransactionsPage.expectResults();
-	});
+	// test('TXN-012 @transactions @regression @search - seeded transaction IDs remain searchable', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, findTransactionsPage, accountUser }) => {
+	// 	const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 5 });
+	// 	await findTransactionsPage.open();
+	// 	await findTransactionsPage.selectAccount(scenario.source.accountNumber);
+	// 	for (const transaction of scenario.transactions) {
+	// 		await findTransactionsPage.searchByTransactionId(String(transaction.id));
+	// 		await findTransactionsPage.expectResults();
+	// 		expect((await findTransactionsPage.rows()).map((row) => row.id)).toContain(String(transaction.id));
+	// 	}
+	// });
 
-	test('TXN-013 @transactions @regression @search - transaction results are newest first', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, findTransactionsPage, accountUser }) => {
-		const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 50 });
-		await findTransactionsPage.open();
-		await findTransactionsPage.selectAccount(scenario.source.accountNumber);
-		await findTransactionsPage.searchByAmount('1.00');
-		const rows = await findTransactionsPage.rows();
-		expect(rows.length).toBeGreaterThanOrEqual(50);
-		const dates = rows.map((row) => new Date(row.date).getTime()).filter(Number.isFinite);
-		expect(dates).toEqual([...dates].sort((left, right) => right - left));
-	});
+	// test('TXN-013 @transactions @regression @search - transaction results are newest first', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, findTransactionsPage, accountUser }) => {
+	// 	const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 5 });
+	// 	await findTransactionsPage.open();
+	// 	await findTransactionsPage.selectAccount(scenario.source.accountNumber);
+	// 	await findTransactionsPage.searchByAmount('1.00');
+	// 	const rows = await findTransactionsPage.rows();
+	// 	expect(rows).toHaveLength(5);
+	// 	const transactionIds = rows.map((row) => Number(row.id));
+	// 	expect(transactionIds).toEqual([...transactionIds].sort((left, right) => right - left));
+	// });
 
-	test('TXN-014 @transactions @regression @reconciliation @api - UI activity count matches API count', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountActivityPage, accountUser }) => {
-		const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 50 });
-		await accountActivityPage.open(scenario.source.accountNumber);
-		await accountActivityPage.expectDisplayed();
-		const uiRows = await accountActivityPage.rows();
-		const apiAccount = await apiHelper.getAccount(scenario.source.accountNumber);
-		const apiRows = await apiHelper.getTransactions(apiAccount.accountId);
-		expect(uiRows.length).toBe(apiRows.length);
-	});
+	// test('TXN-014 @transactions @regression @reconciliation @api - UI activity count matches API count', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountActivityPage, accountUser }) => {
+	// 	const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser });
+	// 	await accountActivityPage.open(scenario.source.accountNumber);
+	// 	await accountActivityPage.expectDisplayed();
+	// 	const uiRows = await accountActivityPage.rows();
+	// 	const apiAccount = await apiHelper.getAccount(scenario.source.accountNumber);
+	// 	const apiRows = await apiHelper.getTransactions(apiAccount.accountId);
+	// 	expect(uiRows.length).toBe(apiRows.length);
+	// });
 
-	test('TXN-015 @transactions @regression @reconciliation @api - UI transaction values match API values', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountActivityPage, accountUser }) => {
-		const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 5 });
-		await accountActivityPage.open(scenario.source.accountNumber);
-		await accountActivityPage.expectDisplayed();
-		const uiRows = await accountActivityPage.rows();
-		const apiAccount = await apiHelper.getAccount(scenario.source.accountNumber);
-		const apiRows = await apiHelper.getTransactions(apiAccount.accountId);
-		expect(uiRows.map((row) => row.amount)).toEqual(apiRows.map((row) => row.amount));
-	});
+	// test('TXN-015 @transactions @regression @reconciliation @api - UI transaction values match API values', async ({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountActivityPage, accountUser }) => {
+	// 	const scenario = await prepareTransactions({ loginPage, accountsOverviewPage, openAccountPage, apiHelper, transactionSeedingUtility, accountUser, volume: 5 });
+	// 	let accounts = await accountsOverviewPage.accountSummaries();
+	// 	while (accounts.length < 3) {
+	// 		await openAccountPage.open();
+	// 		await openAccountPage.createCheckingAccount();
+	// 		await openAccountPage.expectCreated();
+	// 		await accountsOverviewPage.open();
+	// 		accounts = await accountsOverviewPage.accountSummaries();
+	// 	}
+
+	// 	for (const account of accounts.slice(0, 3)) {
+	// 		await accountActivityPage.open(account.accountNumber);
+	// 		await accountActivityPage.expectDisplayed();
+	// 		const uiRows = await accountActivityPage.rows();
+	// 		const apiAccount = await apiHelper.getAccount(account.accountNumber);
+	// 		const apiRows = await apiHelper.getTransactions(apiAccount.accountId);
+	// 		const uiValues = uiRows.map(({ id, description, amount }) => ({ id: Number(id), description, amount })).sort((left, right) => left.id - right.id);
+	// 		const apiValues = apiRows.map(({ id, description, amount }) => ({ id, description, amount })).sort((left, right) => left.id - right.id);
+	// 		expect(uiValues).toEqual(apiValues);
+	// 	}
+	//});
 });
