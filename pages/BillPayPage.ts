@@ -78,7 +78,9 @@ export class BillPayPage {
 	}
 
 	async submit(): Promise<void> {
-		await this.page.getByRole('button', { name: 'Send Payment' }).click();
+		const submitButton = this.page.locator('input.button[value="Send Payment"]');
+		await submitButton.scrollIntoViewIfNeeded();
+		await submitButton.click({ force: true, trial: false });
 	}
 
 	async pay(payment: BillPayment): Promise<void> {

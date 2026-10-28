@@ -13,11 +13,11 @@ export type ApiFixtures = {
 
 export const test = base.extend<ApiFixtures>({
 	restClient: async ({ request, page }, use) => {
-		await page.goto('/');
+		await page.goto('index.htm');
 		await use(new ParaBankRestClient(request, page));
 	},
 	soapClient: async ({ request, page }, use) => {
-		await page.goto('/');
+		await page.goto('index.htm');
 		await use(new ParaBankSoapClient(request, page));
 	},
 	apiUser: async ({}, use) => use({ firstName: 'John', lastName: 'Smith', address: '1431 Main St', city: 'Beverly Hills', state: 'CA', zipCode: '90210', phoneNumber: '310-447-4121', ssn: '622-11-9999', username: 'john', password: 'demo' }),

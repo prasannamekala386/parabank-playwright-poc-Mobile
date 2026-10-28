@@ -65,7 +65,7 @@ export class RegistrationPage {
 		for (const [name, value] of Object.entries(fields)) {
 			await this.page.locator(`input[name="${name}"]`).fill(value);
 		}
-		await this.page.getByRole('button', { name: 'Register' }).click();
+		await this.page.locator('input[name="repeatedPassword"]').press('Enter');
 	}
 
 	async expectValidationError(): Promise<void> {

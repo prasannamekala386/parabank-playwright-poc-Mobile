@@ -4,7 +4,20 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const baseURL = process.env.BASE_URL;
+const baseURL = process.env.BASE_URL?.trim().replace(/\/index\.htm$/i, '/');
+
+const androidProjects = ['emulator-5554', 'emulator-5556', 'emulator-5558'].map((serial) => ({
+  name: `android-${serial}`,
+  testMatch: '**/*.spec.ts',
+  testIgnore: ['**/api/**', '**/day1.smoke.android.spec.ts'],
+  metadata: { androidSerial: serial },
+  use: {
+    browserName: 'chromium' as const,
+    trace: 'off' as const,
+    screenshot: 'off' as const,
+    video: 'off' as const,
+  },
+}));
 
 if (!baseURL) {
   throw new Error('BASE_URL is required in .env');
@@ -58,10 +71,13 @@ export default defineConfig({
   projects: [
   {
     name: 'chromium',
+    testIgnore: '**/day1.smoke.android.spec.ts',
     use: {
       ...devices['Desktop Chrome'],
     },
   },
+
+  ...androidProjects,
 
   // Android Devices
   // {

@@ -11,7 +11,7 @@ export class LoginPage {
 	}
 
 	async open(): Promise<void> {
-		await this.page.goto('/');
+		await this.page.goto('index.htm');
 	}
 
 	async openRegistration(): Promise<void> {
@@ -27,10 +27,14 @@ export class LoginPage {
 			}
 			await this.username.fill(username);
 			await this.password.fill(password);
-			await this.page.getByRole('button', { name: 'Log In' }).click();
+			await this.password.press('Enter');
 
-			const serverError = this.page.getByRole('heading', { name: 'Error!' });
-			if (!(await serverError.isVisible({ timeout: 1000 }).catch(() => false))) {
+			if (await this.isAuthenticated()) {
+				return;
+			}
+
+			const internalError = this.page.getByText('An internal error has occurred and has been logged.', { exact: true });
+			if (!(await internalError.isVisible({ timeout: 1000 }).catch(() => false))) {
 				return;
 			}
 
@@ -71,7 +75,11 @@ export class LoginPage {
 	}
 
 	async goBack(): Promise<void> {
-		await this.page.goBack();
+		try {
+			await this.page.goBack({ waitUntil: 'domcontentloaded' });
+		} catch {
+			await this.page.goto('index.htm');
+		}
 	}
 
 	async reload(): Promise<void> {

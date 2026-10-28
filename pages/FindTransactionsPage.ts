@@ -46,7 +46,7 @@ export class FindTransactionsPage {
 	async searchByDateRange(fromDate: string, toDate: string): Promise<void> {
 		await this.fromDate.fill(fromDate);
 		await this.toDate.fill(toDate);
-		await this.page.locator('#findByDateRange').click();
+		await this.page.locator('#findByDateRange').click({ force: true });
 		await this.page.waitForLoadState('networkidle');
 	}
 
@@ -96,7 +96,7 @@ export class FindTransactionsPage {
 
 	private async runSearch(field: Locator, value: string, buttonId: string): Promise<void> {
 		await field.fill(value);
-		await this.page.locator(`#${buttonId}`).click();
+		await this.page.locator(`#${buttonId}`).click({ force: true });
 		await this.page.waitForLoadState('networkidle');
 	}
 }

@@ -36,7 +36,7 @@ export class LoanPage {
 		} else {
 			await this.fromAccount.selectOption({ index: 0 });
 		}
-		await this.page.getByRole('button', { name: 'Apply Now' }).click();
+		await this.page.getByRole('button', { name: 'Apply Now' }).click({ force: true });
 	}
 
 	async status(): Promise<string> {

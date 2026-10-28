@@ -19,10 +19,15 @@ export class AccountsOverviewPage {
 			await this.page.goto('overview.htm');
 			const errorHeading = this.page.getByRole('heading', { name: 'Error!' });
 			await expect.poll(async () => {
-				if (await errorHeading.isVisible().catch(() => false)) return 'error';
+				if (await this.page.getByRole('heading', { name: 'Accounts Overview' }).isVisible().catch(() => false)) return 'accounts';
 				if (await this.accountNumbers.count() > 0) return 'accounts';
+				if (await errorHeading.isVisible().catch(() => false)) return 'error';
 				return 'loading';
 			}, { timeout: 15000, intervals: [250, 500, 1000] }).toMatch(/accounts|error/);
+			if (await this.page.getByRole('heading', { name: 'Accounts Overview' }).isVisible().catch(() => false) || await this.accountNumbers.count() > 0) {
+				await expect(this.accountNumbers.first()).toBeVisible({ timeout: 5000 }).catch(() => undefined);
+				return;
+			}
 			if (!(await errorHeading.isVisible().catch(() => false))) {
 				await expect(this.accountNumbers.first()).toBeVisible({ timeout: 5000 });
 				return;

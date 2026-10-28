@@ -5,6 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test:smoke": "playwright test tests/smoke --grep \"@smoke\"",
+    "test:android": "playwright test --project=android-emulator-5554 --project=android-emulator-5556 --project=android-emulator-5558",
+    "test:android:5554": "playwright test --project=android-emulator-5554",
+    "test:android:5556": "playwright test --project=android-emulator-5556",
+    "test:android:5558": "playwright test --project=android-emulator-5558",
+    "test:day1:android": "playwright test tests/smoke/day1.smoke.spec.ts --project=android-emulator-5554",
     "test:regression": "playwright test tests/registration --grep \"@regression\"",
     "test:session": "playwright test tests/authentication --grep \"@session\"",
     "test:all": "playwright test --project=chromium",
